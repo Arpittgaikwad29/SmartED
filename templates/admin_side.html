@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartED</title>
+    <style>
+        /* Global styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            display: flex;
+            background-color: white;;
+        }
+
+        /* Sidebar styles */
+        .sidebar {
+            width: 200px;
+            height: 100vh;
+            background-color: white;
+            padding: 20px;
+            border-right: 1px solid #ececec;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background-color: #6a5acd;
+            border-radius: 8px;
+            margin-right: 8px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-text {
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .collapse-btn {
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            margin-left: auto;
+        }
+
+        .menu-section {
+            margin-bottom: 10px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 6px;
+            color: #555;
+            margin-bottom: 4px;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .menu-item:hover {
+            background-color: #f1f0fe;
+        }
+
+        .menu-item.active {
+            background-color: #f1f0fe;
+            color: #6a5acd;
+        }
+
+        .menu-item-icon {
+            margin-right: 10px;
+            opacity: 0.7;
+            width: 18px;
+        }
+
+        .section-title {
+            font-size: 11px;
+            color: #888;
+            margin: 20px 0 10px 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .analysis-item {
+            display: flex;
+            align-items: center;
+            padding: 6px 10px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .analysis-item::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .analysis-item.green::before {
+            background-color: #4CAF50;
+        }
+
+        .analysis-item.orange::before {
+            background-color: #FF9800;
+        }
+
+        .analysis-item.gray::before {
+            background-color: #E0E0E0;
+        }
+
+        .thoughts-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            position: relative;
+        }
+
+        .thoughts-icon {
+            width: 30px;
+            height: 30px;
+            background-color: #FFF9C4;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: -15px;
+            left: calc(50% - 15px);
+        }
+
+        .thoughts-title {
+            font-weight: 600;
+            margin: 10px 0;
+        }
+
+        .thoughts-text {
+            font-size: 12px;
+            color: #777;
+            margin-bottom: 15px;
+        }
+
+        .thoughts-btn {
+            background-color: white;
+            border: 1px solid #eaeaea;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .thoughts-btn:hover {
+            background-color: #f9f9f9;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background-color: white;
+            border-radius: 8px;
+            padding: 8px 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            max-width: 500px;
+        }
+
+        .search-icon {
+            color: #9ca3af;
+            margin-right: 10px;
+        }
+
+        .search-input {
+            border: none;
+            flex: 1;
+            font-size: 0.9rem;
+            color: #4b5563;
+            outline: none;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background-color: white;
+            height: 70px;
+            padding: 10px 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+    .search-bar {
+        display: flex;
+        align-items: center;
+        background-color: #f5f5f7;
+        border-radius: 8px;
+        padding: 8px 15px;
+        margin-bottom: 0;
+        box-shadow: none;
+        max-width: 320px;
+    }
+
+    .action-icons {
+        display: flex;
+        align-items: center;
+        margin-left: auto;
+        margin-right: 20px;
+    }
+
+    .action-icon {
+        color: #6b7280;
+        margin-left: 15px;
+        cursor: pointer;
+    }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info {
+            text-align: right;
+            margin-right: 10px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .user-role {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .dropdown-icon {
+            color: #6b7280;
+            margin-left: 5px;
+            font-size: 0.8rem;
+        }
+
+        /* Course Grid */
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            background-color: #f5f5f7;
+            padding: 20px 30px;
+            margin: 10px;
+            border-radius: 12px;
+            height: 100vh; /* Full viewport height */
+            overflow-y: auto; /* Enables scrolling if content exceeds height */
+        }
+
+        .course-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .course-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 10px; /* Add some padding */
+            min-height: 50px;
+        }
+
+        .course-code {
+            width: 50px; /* Increase size */
+            aspect-ratio: 1 / 1; /* Maintains square shape */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 5%;
+            font-size: 1.2rem; /* Adjust text size */
+            font-weight: bold;
+            background-color: #0ea5e9; /* Example color */
+            color: white;
+            border-radius: 5px;
+        }
+
+        .ml-code{
+            background-color: #e0f2fe;
+            color: black;
+        }
+        .cc-code {
+            background-color: #dbeafe;
+            color: black;
+        }
+
+        .dv-code {
+            background-color: #e0f2fe;
+            color: black;
+        }
+
+        .cl-code {
+            background-color: #e0f2fe;
+            color: black;
+        }
+
+        .df-code {
+            background-color: #dbeafe;
+            color: black;
+        }
+
+        .md-code {
+            background-color: #e0e7ff;
+            color: black;
+        }
+
+        .course-title {
+            font-weight: 600;
+            flex: 1;
+            font-size: 1rem;
+        }
+
+        .more-options {
+            color: #6b7280;
+            cursor: pointer;
+        }
+
+        .course-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            min-height: 40px;
+        }
+        .course-header, .course-actions {
+            width: 100%;
+            padding: 2%; /* Makes padding responsive */
+        }
+
+        .course-header {
+            min-height: 12%; /* 12% of the card height */
+        }
+
+        .course-actions {
+            min-height: 10%;
+        }
+
+        .action-button {
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .action-button-icon {
+            margin-right: 5px;
+        }
+
+        /* content */
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #111;
+        }
+
+        .action-buttons {
+            display: flex;
+            align-items: center;
+        }
+
+        .filter-button {
+            display: flex;
+            align-items: center;
+            padding: 8px 15px;
+            background-color: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .filter-icon {
+            margin-right: 8px;
+        }
+
+        .share-button {
+            padding: 8px 15px;
+            background-color: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .view-controls {
+            display: flex;
+            align-items: center;
+        }
+
+        .view-button {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
+        .view-button.active {
+            background-color: #6C5CE7;
+            color: white;
+        }
+
+        /* Assignment cards */
+        .assignmentss {
+            width: 1200px; /* Take full width */
+            height: 100px; /* Optional: Ensures full height */
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .assignments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .assignment-card {
+            display: flex;
+            align-items: center;
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .assignments-list {
+            flex-grow: 1; /* Allows it to take up available space */
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .subject-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            background-color: #6C5CE7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            margin-right: 15px;
+        }
+
+        .subject-icon.df {
+            background-color: #4C6EF5;
+        }
+
+        .subject-icon.ml {
+            background-color: #8B5CF6;
+        }
+
+        .assignment-details {
+            flex: 1;
+        }
+
+        .assignment-title {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .assignment-due {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .assignment-subject {
+            font-size: 13px;
+            color: #999;
+        }
+
+        .assignment-points {
+            font-size: 15px;
+            font-weight: 500;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+                </svg>
+            </div>
+            <div class="logo-text">SmartED</div>
+            <button class="collapse-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-item active" onclick="showSection('course')">
+                <span class="menu-item-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        <polyline points="9 22 9 12 15 12 15 22"/>
+                    </svg>
+                </span>
+                Dashboard
+            </div>
+            <div class="menu-item" onclick="showSection('assignments')">
+                <span class="menu-item-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10 9 9 9 8 9"/>
+                    </svg>
+                </span>
+                Class
+            </div>
+            <div class="menu-item" onclick="showSection('messages')">
+                <span class="menu-item-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                </span>
+                Messages
+            </div>
+            <div class="menu-item" onclick="showSection('drive')">
+                <span class="menu-item-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/>
+                        <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>
+                    </svg>
+                </span>
+                Drive
+            </div>
+            <div class="menu-item" onclick="showSection('settings')">
+                <span class="menu-item-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                </span>
+                Settings
+            </div>
+        </div>
+
+        <div class="section-title">ANALYSIS</div>
+        <div class="analysis-section">
+            <div class="analysis-item green">PerformanceReport</div>
+            <div class="analysis-item orange">Grading</div>
+            <div class="analysis-item gray">Deadline</div>
+        </div>
+
+        <div class="thoughts-container">
+            <div class="thoughts-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFD700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"/>
+                    <line x1="12" y1="1" x2="12" y2="3"/>
+                    <line x1="12" y1="21" x2="12" y2="23"/>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                    <line x1="1" y1="12" x2="3" y2="12"/>
+                    <line x1="21" y1="12" x2="23" y2="12"/>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                </svg>
+            </div>
+            <div class="thoughts-title">Thoughts Time</div>
+            <div class="thoughts-text">We don't have any thoughts yet, till then you can share your thoughts with your peers.</div>
+            <button class="thoughts-btn">Write a message</button>
+        </div>
+    </div>
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <div class="search-bar">
+                <div class="search-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <input type="text" class="search-input" placeholder="Search for anything...">
+            </div>
+            
+            <div class="action-icons">
+                <div class="action-icon">
+                    <i class="far fa-calendar"></i>
+                </div>
+                <div class="action-icon">
+                    <i class="far fa-bell"></i>
+                </div>
+                <div class="action-icon">
+                    <i class="far fa-bookmark"></i>
+                </div>
+            </div>
+            
+            <div class="user-profile">
+                <div class="user-info">
+                    <div class="user-name">Anima Agrawal</div>
+                    <div class="user-role">TE INFT</div>
+                </div>
+                <img src="https://randomuser.me/api/portraits/women/12.jpg" alt="Profile" class="avatar">
+                <div class="dropdown-icon">
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+        </div>
+
+        
+        <div class="course-grid" id="content-area">
+            <!-- Course Card 1 -->
+            <div class="course-card">
+                <div class="course-header">
+                    <div class="course-code ml-code">ML</div>
+                    <div class="course-title">MachineLearning</div>
+                    <div class="more-options">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </div>
+                </div>
+                <div class="course-actions">
+                    <div class="action-button">
+                        <i class="fas fa-video action-button-icon"></i>
+                    </div>
+                    <div class="action-button">
+                        <i class="fas fa-file-alt action-button-icon"></i>
+                    </div>
+                    <div class="action-button">
+                        <i class="fas fa-folder action-button-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course Card 2 -->
+            <div class="course-card">
+                <div class="course-header">
+                    <div class="course-code cc-code">CC</div>
+                    <div class="course-title">CloudComputing</div>
+                    <div class="more-options">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </div>
+                </div>
+                <div class="course-actions">
+                    <div class="action-button">
+                        <i class="fas fa-video action-button-icon"></i>
+                    </div>
+                    <div class="action-button">
+                        <i class="fas fa-file-alt action-button-icon"></i>
+                    </div>
+                    <div class="action-button">
+                        <i class="fas fa-folder action-button-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course Card 3 -->
+            <div class="course-card">
+                <div class="course-header">
+                    <div class="course-code dv-code">DV</div>
+                    <div class="course-title">Devops</div>
+                    <div class="more-options">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </div>
+                </div>
+                <div class="course-actions">
+                    <div class="action-button">
+                        <i class="fas fa-video action-button-icon"></i>
+                    </div>
+                    <div class="action-button">
+                        <i class="fas fa-file-alt action-button-icon"></i>
+                    </div>
+                    <div class="action-button">
+                        <i class="fas fa-folder action-button-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course Card 4 -->
+            <div class="course-card">
+                <div class="course-header">
+                    <div class="course-code cl-code">CL</div>
+                    <div class="course-title">CyberLaw</div>
+                    <div class="more-options">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </div>
+                </div>
+                <div class="course-actions">
+                    <div class="action-button">
+                        <i class="fas fa-video action-button-icon"></i>
+                    </div>
+                    <div class="action-button">
+                        <i class="fas fa-file-alt action-button-icon"></i>
+                    </div>
+                    <div class="action-button">
+                        <i class="fas fa-folder action-button-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course Card 5 -->
+            <div class="course-card">
+                <div class="course-header">
+                    <div class="course-code df-code">DF</div>
+                    <div class="course-title">DigitalForensica</div>
+                    <div class="more-options">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </div>
+                </div>
+                <div class="course-actions">
+                    <div class="action-button">
+                        <i class="fas fa-video action-button-icon"></i>
+                    </div>
+                    <div class="action-button">
+                        <i class="fas fa-file-alt action-button-icon"></i>
+                    </div>
+                    <div class="action-button">
+                        <i class="fas fa-folder action-button-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course Card 6 -->
+            <div class="course-card">
+                <div class="course-header">
+                    <div class="course-code md-code">MD</div>
+                    <div class="course-title">MAD</div>
+                    <div class="more-options">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </div>
+                </div>
+                <div class="course-actions">
+                    <div class="action-button">
+                        <i class="fas fa-video action-button-icon"></i>
+                    </div>
+                    <div class="action-button">
+                        <i class="fas fa-file-alt action-button-icon"></i>
+                    </div>
+                    <div class="action-button">
+                        <i class="fas fa-folder action-button-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course Card 7 -->
+            <div class="course-card">
+                <div class="course-header">
+                    <div class="course-code ml-code">ML</div>
+                    <div class="course-title">ProjectManagement</div>
+                    <div class="more-options">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </div>
+                </div>
+                <div class="course-actions">
+                    <div class="action-button">
+                        <i class="fas fa-video action-button-icon"></i>
+                    </div>
+                    <div class="action-button">
+                        <i class="fas fa-file-alt action-button-icon"></i>
+                    </div>
+                    <div class="action-button">
+                        <i class="fas fa-folder action-button-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course Card 8 -->
+            <div class="course-card">
+                <div class="course-header">
+                    <div class="course-code cc-code">CC</div>
+                    <div class="course-title">ResearchMethlogy</div>
+                    <div class="more-options">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </div>
+                </div>
+                <div class="course-actions">
+                    <div class="action-button">
+                        <i class="fas fa-video action-button-icon"></i>
+                    </div>
+                    <div class="action-button">
+                        <i class="fas fa-file-alt action-button-icon"></i>
+                    </div>
+                    <div class="action-button">
+                        <i class="fas fa-folder action-button-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course Card 9 -->
+            <div class="course-card">
+                <div class="course-header">
+                    <div class="course-code dv-code">DV</div>
+                    <div class="course-title">Nanotechnology</div>
+                    <div class="more-options">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </div>
+                </div>
+                <div class="course-actions">
+                    <div class="action-button">
+                        <i class="fas fa-video action-button-icon"></i>
+                    </div>
+                    <div class="action-button">
+                        <i class="fas fa-file-alt action-button-icon"></i>
+                    </div>
+                    <div class="action-button">
+                        <i class="fas fa-folder action-button-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional courses to match the image -->
+            <div class="course-card">
+                <div class="course-header">
+                    <div class="course-code ml-code">ML</div>
+                    <div class="course-title">SSEH</div>
+                    <div class="more-options">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </div>
+                </div>
+                <div class="course-actions">
+                    <div class="action-button">
+                        <i class="fas fa-video action-button-icon"></i>
+                    </div>
+                    <div class="action-button">
+                        <i class="fas fa-file-alt action-button-icon"></i>
+                    </div>
+                    <div class="action-button">
+                        <i class="fas fa-folder action-button-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="course-card">
+                <div class="course-header">
+                    <div class="course-code cc-code">CC</div>
+                    <div class="course-title">ArtificialIntelligence</div>
+                    <div class="more-options">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </div>
+                </div>
+                <div class="course-actions">
+                    <div class="action-button">
+                        <i class="fas fa-video action-button-icon"></i>
+                    </div>
+                    <div class="action-button">
+                        <i class="fas fa-file-alt action-button-icon"></i>
+                    </div>
+                    <div class="action-button">
+                        <i class="fas fa-folder action-button-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="course-card">
+                <div class="course-header">
+                    <div class="course-code dv-code">DV</div>
+                    <div class="course-title">ADSA</div>
+                    <div class="more-options">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </div>
+                </div>
+                <div class="course-actions">
+                    <div class="action-button">
+                        <i class="fas fa-video action-button-icon"></i>
+                    </div>
+                    <div class="action-button">
+                        <i class="fas fa-file-alt action-button-icon"></i>
+                    </div>
+                    <div class="action-button">
+                        <i class="fas fa-folder action-button-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom row courses -->
+            <div class="course-card">
+                <div class="course-header">
+                    <div class="course-code ml-code">ML</div>
+                    <div class="course-title">ComputerNetworks</div>
+                    <div class="more-options">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </div>
+                </div>
+                <div class="course-actions">
+                    <div class="action-button">
+                        <i class="fas fa-video action-button-icon"></i>
+                    </div>
+                    <div class="action-button">
+                        <i class="fas fa-file-alt action-button-icon"></i>
+                    </div>
+                    <div class="action-button">
+                        <i class="fas fa-folder action-button-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="course-card">
+                <div class="course-header">
+                    <div class="course-code ml-code">ML</div>
+                    <div class="course-title">DBMS</div>
+                    <div class="more-options">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </div>
+                </div>
+                <div class="course-actions">
+                    <div class="action-button">
+                        <i class="fas fa-video action-button-icon"></i>
+                    </div>
+                    <div class="action-button">
+                        <i class="fas fa-file-alt action-button-icon"></i>
+                    </div>
+                    <div class="action-button">
+                        <i class="fas fa-folder action-button-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="course-card">
+                <div class="course-header">
+                    <div class="course-code ml-code">ML</div>
+                    <div class="course-title">SSEH</div>
+                    <div class="more-options">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </div>
+                </div>
+                <div class="course-actions">
+                    <div class="action-button">
+                        <i class="fas fa-video action-button-icon"></i>
+                    </div>
+                    <div class="action-button">
+                        <i class="fas fa-file-alt action-button-icon"></i>
+                    </div>
+                    <div class="action-button">
+                        <i class="fas fa-folder action-button-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Font Awesome for icons -->
+    <script src="script.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script> -->
+</body>
+</html>

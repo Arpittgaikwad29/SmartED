@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SmartED - Personalized Student Feedback</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            display: flex;
+            background-color: #f9fafb;
+            height: 100vh;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: white;
+            border-right: 1px solid #e5e7eb;
+            padding: 20px;
+        }
+        .sidebar-logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2563eb;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+        }
+        .sidebar-logo img {
+            width: 30px;
+            margin-right: 10px;
+        }
+        .sidebar-menu {
+            list-style: none;
+        }
+        .sidebar-menu li {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            color: #4b5563;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+        .sidebar-menu li.active {
+            background-color: #dbeafe;
+            color: #2563eb;
+            font-weight: 600;
+        }
+        .sidebar-menu li:hover {
+            background-color: #f3f4f6;
+        }
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .header-icons {
+            display: flex;
+            gap: 15px;
+            color: #6b7280;
+        }
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .user-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+        .feedback-container {
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .feedback-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .feedback-form select, .feedback-form textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+        }
+        .text-formatting {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            color: #6b7280;
+        }
+        .text-formatting button {
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        .rating {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        .rating span {
+            color: #d1d5db;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .rating span.active {
+            color: #fbbf24;
+        }
+        .submit-btn {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            float: right;
+        }
+        .previous-feedback {
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .previous-feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .previous-feedback-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .previous-feedback-table th, 
+        .previous-feedback-table td {
+            border-bottom: 1px solid #e5e7eb;
+            padding: 10px;
+            text-align: left;
+        }
+        .table-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .thoughts-time {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            width: 250px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .thoughts-time-icon {
+            width: 40px;
+            height: 40px;
+            background-color: #fef3c7;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <img src="https://via.placeholder.com/30" alt="SmartED Logo">
+            SmartED
+        </div>
+        <ul class="sidebar-menu">
+            <li>Dashboard</li>
+            <li>Assignment</li>
+            <li class="active">Feedback</li>
+            <li>Analytics</li>
+            <li>Settings</li>
+        </ul>
+    </div>
+    
+    <div class="main-content">
+        <div class="header">
+            <div class="header-right">
+                <div class="header-icons">
+                    <span>📅</span>
+                    <span>💬</span>
+                    <span>🔔</span>
+                </div>
+                <div class="user-profile">
+                    <img src="https://via.placeholder.com/40" alt="Profile">
+                    <div>
+                        <div>Joey Tribbiani</div>
+                        <div style="color: #6b7280; font-size: 0.8em;">INFT PROF</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <h1>Personalized Student Feedback</h1>
+        <div class="feedback-container">
+            <div class="feedback-form">
+                <select>
+                    <option>Select a student...</option>
+                </select>
+                <select>
+                    <option>Select an assignment...</option>
+                </select>
+            </div>
+            
+            <div class="text-formatting">
+                <button>B</button>
+                <button>I</button>
+                <button>=</button>
+            </div>
+            
+            <textarea placeholder="Type your feedback here..." rows="6"></textarea>
+            
+            <div class="rating">
+                <span>☆</span>
+                <span>☆</span>
+                <span>☆</span>
+                <span>☆</span>
+                <span>☆</span>
+            </div>
+            
+            <div>
+                <span>📎 Attach Files</span>
+                <button class="submit-btn">Submit Feedback</button>
+            </div>
+        </div>
+        
+        <div class="previous-feedback">
+            <div class="previous-feedback-header">
+                <h2>Previous Feedback</h2>
+                <div>
+                    <input type="text" placeholder="Search...">
+                    <select>▼</select>
+                </div>
+            </div>
+            
+            <table class="previous-feedback-table">
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Assignment</th>
+                        <th>Feedback</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <img src="https://via.placeholder.com/30" alt="Profile" style="border-radius: 50%; margin-right: 10px;">
+                            Sarah Johnson
+                        </td>
+                        <td>Math Quiz #3</td>
+                        <td>Excellent work on the problem-solving...</td>
+                        <td>Mar 15, 2025</td>
+                        <td>
+                            <div class="table-actions">
+                                <span>✏️</span>
+                                <span>🗑️</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="thoughts-time">
+            <div class="thoughts-time-icon">
+                💡
+            </div>
+            <p>We don't have any notice for you. You can then care to share your thoughts with your peers.</p>
+            <button class="submit-btn" style="width: 100%; margin-top: 10px;">Write a message</button>
+        </div>
+    </div>
+</body>
+</html>
