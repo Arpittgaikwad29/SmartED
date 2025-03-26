@@ -158,6 +158,7 @@ function showSection(section) {
     } 
     else if (section === "Course") {
         contentArea.innerHTML = `
+        <div class ="course-pos">
             <div class="course-card">
                 <div class="course-header">
                     <div class="course-code ml-code">ML</div>
@@ -265,6 +266,7 @@ function showSection(section) {
                         <i class="fas fa-folder action-button-icon"></i>
                     </div>
                 </div>
+            </div>
             </div>
             `;
     } 

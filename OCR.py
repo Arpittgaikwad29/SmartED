@@ -6,7 +6,7 @@ import os
 textract = boto3.client('textract', region_name='us-east-1')  # Change region if needed
 
 # Convert PDF to images
-pdf_path = "22101A0029 - Assignment 111.pdf"  # Replace with your PDF file
+pdf_path = "CSA_sam_assig_for_practice.pdf"  # Replace with your PDF file
 output_folder = "pdf"  # Folder to save images temporarily
 
 os.makedirs(output_folder, exist_ok=True)  # Create folder if it doesn't exist
@@ -33,6 +33,8 @@ for i, image in enumerate(images):
 
     # Delete the image immediately after processing
     os.remove(image_path)
+
+print(extracted_text)
 
 # Remove the empty folder after all images are deleted
 if not os.listdir(output_folder):
