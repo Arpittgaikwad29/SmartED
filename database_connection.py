@@ -4,11 +4,11 @@ from config import DB_CONFIG
 
 def connect_to_database():
     return pymysql.connect(
-        host=DB_CONFIG["host"],
-        port=DB_CONFIG["port"],
-        user=DB_CONFIG["user"],
-        password=DB_CONFIG["password"],
-        database=DB_CONFIG["database"],
+        host='trolley.proxy.rlwy.net',
+        port=32851,
+        user='root',
+        password='FGJzjbMcvDYXDFgOslZDJsHjghNTRIql',
+        database='railway',
         cursorclass=pymysql.cursors.DictCursor
     )
 
