@@ -9,9 +9,10 @@ from werkzeug.utils import secure_filename
 import pdf2image
 import re
 import fitz
+from config import GEMINI_API_KEY
 from flask import Flask, request, redirect, flash, render_template, session
 
-
+genai.configure(api_key=GEMINI_API_KEY)
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'  # Change this to a random secret key
 
@@ -483,7 +484,7 @@ def submit_assignment():
     # Generate feedback and grade using Gemini
     try:
         # Configure Gemini API
-        api_key = 'AIzaSyBFJi_RhIbNND7FvvqYE28uEkpPqO00Lys'
+        api_key = GEMINI_API_KEY
         if not api_key:
             raise ValueError("Missing GEMINI_API_KEY environment variable")
             
@@ -567,7 +568,7 @@ def extract_text_from_pdf_with_gemini(pdf_path):
         str: Extracted text from the PDF
     """
     # Get API key from environment variable
-    api_key = "AIzaSyBFJi_RhIbNND7FvvqYE28uEkpPqO00Lys"
+    api_key = GEMINI_API_KEY
     if not api_key:
         raise ValueError("Missing GEMINI_API_KEY environment variable")
     
