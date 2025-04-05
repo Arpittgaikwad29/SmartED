@@ -3,10 +3,11 @@ import hashlib
 
 def connect_to_database():
     return pymysql.connect(
-        host='localhost', 
-        user='root', 
-        password='root', 
-        database='gdg', 
+        MYSQL_HOST="mysql-jxde.railway.internal.app",
+        MYSQL_USER= "root",
+        MYSQL_PASSWORD="FGJzjbMcvDYXDFgOslZDJsHjghNTRIql",
+        MYSQL_DATABASE="railway",
+        MYSQL_PORT=3306 ,
         cursorclass=pymysql.cursors.DictCursor
     )
 
