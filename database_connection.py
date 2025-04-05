@@ -1,13 +1,14 @@
 import pymysql
 import hashlib
+from config import DB_CONFIG
 
 def connect_to_database():
     return pymysql.connect(
-        MYSQL_HOST="mysql-jxde.railway.internal.app",
-        MYSQL_USER= "root",
-        MYSQL_PASSWORD="FGJzjbMcvDYXDFgOslZDJsHjghNTRIql",
-        MYSQL_DATABASE="railway",
-        MYSQL_PORT=3306 ,
+        host=DB_CONFIG["host"],
+        port=DB_CONFIG["port"],
+        user=DB_CONFIG["user"],
+        password=DB_CONFIG["password"],
+        database=DB_CONFIG["database"],
         cursorclass=pymysql.cursors.DictCursor
     )
 
