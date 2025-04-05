@@ -21,45 +21,52 @@ def index():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        user_type = request.form['user_type']
-        name = request.form['name']
-        
-        # Student registration
-        if user_type == 'student':
-            roll_no = request.form['roll_no']
-            password = hash_password(request.form['password'])
-            
+        user_type = request.form.get('user_type')
+        name = request.form.get('name')
+        password = hash_password(request.form.get('password'))
+
+        if not user_type or not name or not password:
+            flash("All fields are required!")
+            return redirect('/register')
+
+        try:
             conn = connect_to_database()
-            try:
-                with conn.cursor() as cursor:
-                    sql = "INSERT INTO students (roll_no, name, password) VALUES (%s, %s, %s)"
-                    cursor.execute(sql, (roll_no, name, password))
-                conn.commit()
-                flash('Registration successful!')
-                return redirect('/')
-            except pymysql.IntegrityError:
-                flash('Roll number already exists!')
-            finally:
-                conn.close()
-        
-        # Teacher registration
-        elif user_type == 'teacher':
-            teacher_id = request.form['teacher_id']
-            password = hash_password(request.form['password'])
+            cursor = conn.cursor()
+
+            if user_type == 'student':
+                roll_no = request.form.get('roll_no')
+                if not roll_no:
+                    flash("Roll number is required for student registration.")
+                    return redirect('/register')
+
+                sql = "INSERT INTO students (roll_no, name, password) VALUES (%s, %s, %s)"
+                cursor.execute(sql, (roll_no, name, password))
+
+            elif user_type == 'teacher':
+                teacher_id = request.form.get('teacher_id')
+                if not teacher_id:
+                    flash("Teacher ID is required for teacher registration.")
+                    return redirect('/register')
+
+                sql = "INSERT INTO teachers (teacher_id, name, password) VALUES (%s, %s, %s)"
+                cursor.execute(sql, (teacher_id, name, password))
             
-            conn = connect_to_database()
-            try:
-                with conn.cursor() as cursor:
-                    sql = "INSERT INTO teachers (teacher_id, name, password) VALUES (%s, %s, %s)"
-                    cursor.execute(sql, (teacher_id, name, password))
-                conn.commit()
-                flash('Registration successful!')
-                return redirect('/')
-            except pymysql.IntegrityError:
-                flash('Teacher ID already exists!')
-            finally:
+            else:
+                flash("Invalid user type selected.")
+                return redirect('/register')
+
+            conn.commit()
+            flash('Registration successful!')
+            return redirect('/')
+
+        except pymysql.IntegrityError as ie:
+            flash('User already exists. Please try again with a different ID.')
+        except Exception as e:
+            flash(f"An error occurred: {str(e)}")
+        finally:
+            if conn:
                 conn.close()
-    
+
     return render_template('register.html')
 
 @app.route('/login', methods=['GET', 'POST'])
