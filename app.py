@@ -588,15 +588,21 @@ def extract_text_from_pdf_with_gemini(pdf_path):
     all_pages_text = []
     
     try:
+        # Import PyMuPDF
+        import pymupdf
+        
         # Open the PDF document using PyMuPDF
-        doc = fitz.open(pdf_path)
+        doc = pymupdf.open(pdf_path)
         total_pages = len(doc)
         
         # Iterate through each page
-        for page_num, page in enumerate(doc):
+        for page_num in range(total_pages):
             current_page_index = page_num + 1  # 1-based index for display
             
             try:
+                # Get the page
+                page = doc[page_num]
+                
                 # Render page to an image with higher resolution for better OCR
                 pix = page.get_pixmap(dpi=150)
                 # Convert pixmap to image bytes
@@ -653,7 +659,6 @@ def extract_text_from_pdf_with_gemini(pdf_path):
             except:
                 pass
         raise e
-
 
 @app.route('/logout')
 def logout():
