@@ -1,11 +1,10 @@
-﻿pymysql
+pymysql
 google.generativeai
 pdf2image
-fitz
+PyMuPDF
 frontend
 tools
 flask
 gunicorn
 python-dotenv
-PyMuPDF
 Werkzeug
