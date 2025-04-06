@@ -506,7 +506,7 @@ def submit_assignment():
             # Configure Gemini API
             api_key = os.getenv("GOOGLE_API_KEY")
             if not api_key:
-                  # Fallback to hardcoded key
+                api_key="AIzaSyByrTJm40WL49x37qhIPG7Z_4tZrh9-bSw"# Fallback to hardcoded key
                 print("Using hardcoded API key")
             else:
                 print("Using environment variable API key")
