@@ -7,8 +7,6 @@ import pymysql
 from werkzeug.utils import secure_filename
 import pdf2image
 import re
-import fitz
-from flask import Flask, request, redirect, flash, render_template, session
 
 
 app = Flask(__name__)
