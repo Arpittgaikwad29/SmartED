@@ -454,111 +454,163 @@ def class_analysis(class_id):
 @app.route('/submit_assignment', methods=['POST'])
 def submit_assignment():
     if 'user_type' not in session or session['user_type'] != 'student':
+        flash('Not authorized as student')
         return redirect('/login')
     
-    # Handle file upload
-    if 'assignment_file' not in request.files:
-        flash('No file part')
-        return redirect('/student_dashboard')
-    
-    file = request.files['assignment_file']
-    
-    # If no file is selected
-    if file.filename == '':
-        flash('No selected file')
-        return redirect('/student_dashboard')
-    
-    # Ensure upload directory exists
-    upload_folder = 'submissions'
-    os.makedirs(upload_folder, exist_ok=True)
-    
-    # Secure filename and save file
-    filename = secure_filename(f"{session['roll_no']}_{file.filename}")
-    file_path = os.path.join(upload_folder, filename)
-    file.save(file_path)
-    
-    # Extract text from PDF using Gemini
     try:
-        extracted_text = extract_text_from_pdf_with_gemini(file_path)
-    except Exception as e:
-        flash(f'Error extracting text: {str(e)}')
-        return redirect('/student_dashboard')
-    
-    # Generate feedback and grade using Gemini
-    try:
-        # Configure Gemini API
-        api_key = os.getenv("GOOGLE_API_KEY")
-        if not api_key:
-            raise ValueError("Missing GEMINI_API_KEY environment variable")
+        print("Starting assignment submission process")
+        
+        # Handle file upload
+        if 'assignment_file' not in request.files:
+            flash('No file part')
+            return redirect('/student_dashboard')
+        
+        file = request.files['assignment_file']
+        print(f"File received: {file.filename}")
+        
+        # If no file is selected
+        if file.filename == '':
+            flash('No selected file')
+            return redirect('/student_dashboard')
+        
+        # Ensure upload directory exists
+        upload_folder = os.path.join(os.getcwd(), 'submissions')
+        os.makedirs(upload_folder, exist_ok=True)
+        print(f"Upload directory: {upload_folder}")
+        print(f"Directory exists: {os.path.exists(upload_folder)}")
+        print(f"Directory writable: {os.access(upload_folder, os.W_OK)}")
+        
+        # Secure filename and save file
+        filename = secure_filename(f"{session['roll_no']}_{file.filename}")
+        file_path = os.path.join(upload_folder, filename)
+        print(f"Saving file to: {file_path}")
+        file.save(file_path)
+        print(f"File saved successfully: {os.path.exists(file_path)}")
+        
+        # Extract text from PDF using Gemini
+        try:
+            print("Starting text extraction from PDF")
+            extracted_text = extract_text_from_pdf_with_gemini(file_path)
+            print(f"Text extraction successful: {len(extracted_text)} characters extracted")
+        except Exception as e:
+            import traceback
+            error_details = traceback.format_exc()
+            print(f"Error extracting text: {str(e)}")
+            print(f"Error details: {error_details}")
+            flash(f'Error extracting text: {str(e)}')
+            return redirect('/student_dashboard')
+        
+        # Generate feedback and grade using Gemini
+        try:
+            print("Starting feedback generation")
+            # Configure Gemini API
+            api_key = os.getenv("GOOGLE_API_KEY")
+            if not api_key:
+                api_key = "AIzaSyBFJi_RhIbNND7FvvqYE28uEkpPqO00Lys"  # Fallback to hardcoded key
+                print("Using hardcoded API key")
+            else:
+                print("Using environment variable API key")
+                
+            genai.configure(api_key=api_key)
             
-        genai.configure(api_key=api_key)
-        
-        # Create the model for grading
-        model = genai.GenerativeModel('gemini-2.0-flash')
-        
-        # Prompt for feedback and grading
-        prompt = f"""
-        Evaluate the following student assignment text:
-        
-        {extracted_text}
-        
-        Please provide:
-        2. A precised feedback report
-        3. A grade out of 100
-        4. Specific strengths and areas of improvement
-        
-        
-        Format your response as:
-        Feedback: [Detailed Feedback]
-        Grade: [Numeric Grade out of 100]
-        Strengths: [List of Strengths]
-        Improvements: [List of Improvement Areas]
-        """
-        
-        # Generate response
-        response = model.generate_content(prompt)
-        
-        # Parse the response
-        full_response = response.text
-        
-        # Extract grade
-        grade_match = re.search(r'Grade:\s*(\d+)', full_response)
-        grade = float(grade_match.group(1)) if grade_match else 0
-        
-        # Extract feedback
-        feedback_match = re.search(r'Feedback:\s*(.+?)(?=\n\w+:|\Z)', full_response, re.DOTALL)
-        feedback = feedback_match.group(1).strip() if feedback_match else "Plagarism or other Students Assignment"
-    
-    except Exception as e:
-        flash(f'Error generating feedback: {str(e)}')
-        return redirect('/student_dashboard')
-    
-    # Save submission to database
-    conn = connect_to_database()
-    try:
-        with conn.cursor() as cursor:
-            # Insert submission details
-            sql = """
-            INSERT INTO submitted_assignments
-            (assignment_id, roll_no, submission_date, file_path, extracted_text, feedback, grade)
-            VALUES (%s, %s, NOW(), %s, %s, %s, %s);
+            # Create the model for grading
+            print("Creating Gemini model for grading")
+            model = genai.GenerativeModel('gemini-2.0-flash')
+            
+            # Prompt for feedback and grading
+            prompt = f"""
+            Evaluate the following student assignment text:
+            
+            {extracted_text}
+            
+            Please provide:
+            2. A precised feedback report
+            3. A grade out of 100
+            4. Specific strengths and areas of improvement
+            
+            
+            Format your response as:
+            Feedback: [Detailed Feedback]
+            Grade: [Numeric Grade out of 100]
+            Strengths: [List of Strengths]
+            Improvements: [List of Improvement Areas]
             """
-            cursor.execute(sql, (
-                request.form['assignment_id'], 
-                session['roll_no'], 
-                file_path, 
-                extracted_text, 
-                feedback, 
-                grade
-            ))
-        conn.commit()
-        flash('Assignment submitted successfully!')
+            
+            # Generate response
+            print("Generating content from Gemini")
+            response = model.generate_content(prompt)
+            
+            # Parse the response
+            full_response = response.text
+            print(f"Response received with length: {len(full_response)}")
+            
+            # Extract grade
+            grade_match = re.search(r'Grade:\s*(\d+)', full_response)
+            grade = float(grade_match.group(1)) if grade_match else 0
+            print(f"Extracted grade: {grade}")
+            
+            # Extract feedback
+            feedback_match = re.search(r'Feedback:\s*(.+?)(?=\n\w+:|\Z)', full_response, re.DOTALL)
+            feedback = feedback_match.group(1).strip() if feedback_match else "Plagarism or other Students Assignment"
+            print(f"Extracted feedback with length: {len(feedback)}")
+        
+        except Exception as e:
+            import traceback
+            error_details = traceback.format_exc()
+            print(f"Error generating feedback: {str(e)}")
+            print(f"Error details: {error_details}")
+            flash(f'Error generating feedback: {str(e)}')
+            return redirect('/student_dashboard')
+        
+        # Save submission to database
+        print("Connecting to database to save submission")
+        try:
+            conn = connect_to_database()
+            print("Database connection established")
+            with conn.cursor() as cursor:
+                # Insert submission details
+                assignment_id = request.form['assignment_id']
+                roll_no = session['roll_no']
+                print(f"Preparing to insert submission for assignment_id: {assignment_id}, roll_no: {roll_no}")
+                
+                sql = """
+                INSERT INTO submitted_assignments
+                (assignment_id, roll_no, submission_date, file_path, extracted_text, feedback, grade)
+                VALUES (%s, %s, NOW(), %s, %s, %s, %s);
+                """
+                cursor.execute(sql, (
+                    assignment_id, 
+                    roll_no, 
+                    file_path, 
+                    extracted_text, 
+                    feedback, 
+                    grade
+                ))
+                print("SQL executed successfully")
+            conn.commit()
+            print("Database transaction committed")
+            flash('Assignment submitted successfully!')
+        except Exception as e:
+            import traceback
+            error_details = traceback.format_exc()
+            print(f"Database error: {str(e)}")
+            print(f"Error details: {error_details}")
+            flash(f'Database error: {str(e)}')
+        finally:
+            if 'conn' in locals() and conn:
+                conn.close()
+                print("Database connection closed")
+        
+        print("Submission process completed, redirecting to dashboard")
+        return redirect('/student_dashboard')
+        
     except Exception as e:
-        flash(f'Database error: {str(e)}')
-    finally:
-        conn.close()
-    
-    return redirect('/student_dashboard')
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Unexpected error in submit_assignment: {str(e)}")
+        print(f"Error details: {error_details}")
+        flash(f'Unexpected error: {str(e)}')
+        return redirect('/student_dashboard')
 
 def extract_text_from_pdf_with_gemini(pdf_path):
     """
@@ -570,16 +622,25 @@ def extract_text_from_pdf_with_gemini(pdf_path):
     Returns:
         str: Extracted text from the PDF
     """
+    print(f"Starting PDF extraction for file: {pdf_path}")
+    print(f"File exists: {os.path.exists(pdf_path)}")
+    print(f"File size: {os.path.getsize(pdf_path) if os.path.exists(pdf_path) else 'N/A'}")
+    
     # Get API key from environment variable
-    api_key = "AIzaSyBFJi_RhIbNND7FvvqYE28uEkpPqO00Lys"
+    api_key = os.getenv("GOOGLE_API_KEY")
     if not api_key:
-        raise ValueError("Missing GEMINI_API_KEY environment variable")
+        api_key = "AIzaSyBFJi_RhIbNND7FvvqYE28uEkpPqO00Lys"  # Fallback to hardcoded key
+        print("Using hardcoded API key in extract function")
+    else:
+        print("Using environment variable API key in extract function")
     
     # Configure Gemini API
     genai.configure(api_key=api_key)
+    print("Gemini API configured")
     
     # Create the model with multimodal capabilities
     model = genai.GenerativeModel("gemini-1.5-flash")
+    print("Gemini model created")
     
     # Set image format and MIME type
     intermediate_image_format = "png"
@@ -588,78 +649,121 @@ def extract_text_from_pdf_with_gemini(pdf_path):
     all_pages_text = []
     
     try:
-        # Import PyMuPDF
-        import pymupdf
+        print("Trying to import PyMuPDF")
+        try:
+            import fitz  # PyMuPDF
+            print("Successfully imported fitz (PyMuPDF)")
+            use_fitz = True
+        except ImportError:
+            print("Failed to import fitz, trying alternative pymupdf")
+            try:
+                import pymupdf
+                print("Successfully imported pymupdf")
+                use_fitz = False
+            except ImportError:
+                print("Failed to import pymupdf")
+                raise ImportError("Neither fitz nor pymupdf could be imported. Please install PyMuPDF.")
         
         # Open the PDF document using PyMuPDF
-        doc = pymupdf.open(pdf_path)
+        print(f"Opening PDF document: {pdf_path}")
+        if use_fitz:
+            doc = fitz.open(pdf_path)
+        else:
+            doc = pymupdf.open(pdf_path)
+        
         total_pages = len(doc)
+        print(f"PDF has {total_pages} pages")
         
         # Iterate through each page
         for page_num in range(total_pages):
             current_page_index = page_num + 1  # 1-based index for display
+            print(f"Processing page {current_page_index} of {total_pages}")
             
             try:
                 # Get the page
                 page = doc[page_num]
+                print(f"Got page {current_page_index}")
                 
                 # Render page to an image with higher resolution for better OCR
+                print("Rendering page to pixmap")
                 pix = page.get_pixmap(dpi=150)
+                print(f"Pixmap created: {pix.width}x{pix.height}")
+                
                 # Convert pixmap to image bytes
+                print("Converting pixmap to bytes")
                 img_data = pix.tobytes(output=intermediate_image_format)
+                print(f"Image bytes length: {len(img_data)}")
                 
                 # Prepare the content parts for the API request
                 image_part = {
                     "mime_type": intermediate_mime_type,
                     "data": img_data
                 }
-                # Prompt for text extraction
+                
                 prompt_part = "Extract all handwritten and printed text visible in this image. Preserve the general layout if possible, but focus on accurate transcription. Provide only the extracted text."
                 
                 # Make the API call
+                print("Making API call to Gemini")
                 contents = [prompt_part, image_part]
                 request_options = {"timeout": 120}  # 120 seconds timeout
                 response = model.generate_content(contents, request_options=request_options)
+                print("API call completed")
                 
                 # Extract text from the response
-                if response.candidates and response.candidates[0].content.parts:
+                if hasattr(response, 'candidates') and response.candidates and response.candidates[0].content.parts:
                     extracted_text = response.candidates[0].content.parts[0].text
+                    print(f"Extracted text length: {len(extracted_text)}")
                     page_separator = f"\n\n--- Page {current_page_index} ---\n\n"
                     all_pages_text.append(page_separator + extracted_text.strip())
                 elif hasattr(response, 'text') and response.text:
                     # Fallback for simpler response structure
+                    extracted_text = response.text
+                    print(f"Extracted text length (fallback): {len(extracted_text)}")
                     page_separator = f"\n\n--- Page {current_page_index} ---\n\n"
-                    all_pages_text.append(page_separator + response.text.strip())
+                    all_pages_text.append(page_separator + extracted_text.strip())
                 else:
                     # Log that a page was skipped but continue processing others
+                    print("No text could be extracted from this page")
                     page_separator = f"\n\n--- Page {current_page_index} (Error extracting text) ---\n\n"
                     all_pages_text.append(page_separator)
                 
             except Exception as page_e:
+                import traceback
+                error_details = traceback.format_exc()
+                print(f"Error processing page {current_page_index}: {str(page_e)}")
+                print(f"Error details: {error_details}")
                 # Continue to the next page if there's an error
                 page_separator = f"\n\n--- Page {current_page_index} (Error processing page: {str(page_e)}) ---\n\n"
                 all_pages_text.append(page_separator)
         
         # Close the document
+        print("Closing PDF document")
         doc.close()
         
         # Combine text from all pages
         final_text = "".join(all_pages_text).strip()
+        print(f"Total extracted text length: {len(final_text)}")
         
         if not final_text:
+            print("No text was extracted from any page")
             raise ValueError("No text could be extracted from the PDF")
         
         return final_text
         
     except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Error in extract_text_from_pdf_with_gemini: {str(e)}")
+        print(f"Error details: {error_details}")
         # Ensure document is closed if it was opened
         if 'doc' in locals():
             try:
                 doc.close()
+                print("Document closed during exception handling")
             except:
-                pass
-        raise e
+                print("Error closing document during exception handling")
 
+        raise e
 @app.route('/logout')
 def logout():
     session.clear()
