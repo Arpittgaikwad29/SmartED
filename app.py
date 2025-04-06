@@ -506,7 +506,7 @@ def submit_assignment():
             # Configure Gemini API
             api_key = os.getenv("GOOGLE_API_KEY")
             if not api_key:
-                api_key = "AIzaSyBFJi_RhIbNND7FvvqYE28uEkpPqO00Lys"  # Fallback to hardcoded key
+                  # Fallback to hardcoded key
                 print("Using hardcoded API key")
             else:
                 print("Using environment variable API key")
@@ -524,6 +524,7 @@ def submit_assignment():
             {extracted_text}
             
             Please provide:
+            1. Plagarism check if its greater than 50% then reduce the marks to the percentage of plagarism detected and provide in feedback how much plagarism has been detected
             2. A precised feedback report
             3. A grade out of 100
             4. Specific strengths and areas of improvement
@@ -545,9 +546,11 @@ def submit_assignment():
             print(f"Response received with length: {len(full_response)}")
             
             # Extract grade
-            grade_match = re.search(r'Grade:\s*(\d+)', full_response)
+            # Extract grade
+            grade_match = re.search(r'Grade\s*:\s*(\d+(\.\d+)?)', full_response, re.IGNORECASE)
             grade = float(grade_match.group(1)) if grade_match else 0
             print(f"Extracted grade: {grade}")
+
             
             # Extract feedback
             feedback_match = re.search(r'Feedback:\s*(.+?)(?=\n\w+:|\Z)', full_response, re.DOTALL)
