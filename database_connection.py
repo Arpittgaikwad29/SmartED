@@ -4,13 +4,14 @@ from config import DB_CONFIG
 
 def connect_to_database():
     return pymysql.connect(
-        host='trolley.proxy.rlwy.net',
-        port=32851,
+        host='crossover.proxy.rlwy.net',
+        port=58509,
         user='root',
-        password='FGJzjbMcvDYXDFgOslZDJsHjghNTRIql',
+        password='sVcFQqEAWxrqEnPnRKETakUENczPUliF',
         database='railway',
         cursorclass=pymysql.cursors.DictCursor
     )
+
 
 def hash_password(password):
     """Hash password using SHA-256"""
